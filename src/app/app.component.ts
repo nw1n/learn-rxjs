@@ -9,8 +9,6 @@ import { RouterOutlet } from '@angular/router';
     <h1>{{ title }}</h1>
     <router-outlet></router-outlet>
   `,
-
-  styleUrl: './app.component.css'
 })
 export class AppComponent {
   title = 'learn-rxjs';
