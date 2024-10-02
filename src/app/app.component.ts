@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { fromEvent } from 'rxjs';
+import { fromEvent, scan } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -30,8 +30,10 @@ export class AppComponent {
     // console.dir(this.main);
     // console.dir(window.document);
 
-    fromEvent(window.document, 'click').subscribe(() =>
-      console.log('Clicked!')
-    );
+    const subscription = fromEvent(document, 'click')
+      .pipe(scan((count) => count + 1, 0))
+      .subscribe((count) => console.log(`Clicked ${count} times`));
+
+    console.log('subscription', subscription);
   }
 }
