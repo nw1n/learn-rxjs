@@ -1,14 +1,17 @@
-import { Component, ViewChild } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { fromEvent, scan } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { Component, Signal, ViewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { BehaviorSubject, fromEvent, map, Observable, scan, tap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [CommonModule],
   template: `
     <h1>{{ title }}</h1>
     <div #main>MAIN</div>
+    <div>{{ observableForView$ | async }}</div>
+    <div>{{ bhvSubject$ | async }}</div>
   `,
 })
 export class AppComponent {
@@ -19,8 +22,14 @@ export class AppComponent {
   title = 'learn-rxjs';
   main: HTMLElement | null = null;
 
+  observableForView$: Observable<any> | null = null;
+  bhvSubject$: BehaviorSubject<any>;
+  mySignal: Signal<any> | null = null;
+
   constructor() {
     console.log('AppComponent constructor');
+
+    this.bhvSubject$ = new BehaviorSubject(0);
   }
 
   ngAfterViewInit() {
@@ -30,10 +39,19 @@ export class AppComponent {
     // console.dir(this.main);
     // console.dir(window.document);
 
-    const subscription = fromEvent(document, 'click')
-      .pipe(scan((count) => count + 1, 0))
-      .subscribe((count) => console.log(`Clicked ${count} times`));
+    const clickObservable$ = fromEvent(window.document, 'click');
+    this.observableForView$ = clickObservable$.pipe(
+      map((event) => event),
+      tap((event) => console.log(event)),
+      tap(() => this.bhvSubject$.next(this.bhvSubject$.value + 1))
+    );
 
-    console.log('subscription', subscription);
+    this.mySignal = toSignal(this.observableForView$);
+
+    // const subscription = this.observableForView$
+    //   .pipe(scan((count) => count + 1, 0))
+    //   .subscribe((count) => console.log(`Clicked ${count} times`));
+
+    // console.log('subscription', subscription);
   }
 }
