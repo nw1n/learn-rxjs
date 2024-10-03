@@ -12,6 +12,7 @@ import { BehaviorSubject, fromEvent, map, Observable, tap } from 'rxjs';
     <div #main>MAIN</div>
     <div>{{ observableForView$ | async }}</div>
     <div>{{ bhvSubject$ | async }}</div>
+    <div>simple: {{ simpleNumber }}</div>
   `,
 })
 export class TryOneComponent {
@@ -23,6 +24,7 @@ export class TryOneComponent {
   observableForView$: Observable<any> | null = null;
   bhvSubject$: BehaviorSubject<any>;
   mySignal: Signal<any> | null = null;
+  simpleNumber = 0;
 
   constructor() {
     console.log('TryOneComponent constructor');
@@ -34,9 +36,10 @@ export class TryOneComponent {
     this.observableForView$ = clickObservable$.pipe(
       map((event) => event),
       tap((event) => console.log(event)),
-      tap(() => this.bhvSubject$.next(this.bhvSubject$.value + 1))
+      tap(() => this.bhvSubject$.next(this.bhvSubject$.value + 1)),
+      tap((event) => {
+        this.simpleNumber++;
+      })
     );
-
-    this.mySignal = toSignal(this.observableForView$);
   }
 }
