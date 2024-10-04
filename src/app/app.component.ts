@@ -151,15 +151,10 @@ export class TryFourComponent {
   private rxjsWay() {
     const singleExecution$ = new Observable((observer) => {
       observer.next('xy');
-      // we coould complete the observable for skipping manual unsubscribe
-      //observer.complete();
+      observer.complete();
     });
 
-    // Subscribe to the observable
     const sub = singleExecution$.subscribe(this.logHello);
-    console.log('subscribed', sub);
-    sub.unsubscribe();
-    console.log('unsubscribed', sub);
   }
 }
 
