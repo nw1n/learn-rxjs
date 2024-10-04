@@ -20,7 +20,7 @@ export class TryOneComponent {
   mainViewChild: any;
 
   main: HTMLElement | null = null;
-
+  
   observableForView$: Observable<any> | null = null;
   bhvSubject$: BehaviorSubject<any>;
   mySignal: Signal<any> | null = null;
