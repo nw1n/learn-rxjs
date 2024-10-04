@@ -149,13 +149,27 @@ export class TryFourComponent {
   }
 
   private rxjsWay() {
-    const singleExecution$ = new Observable((observer) => {
-      observer.next('xy');
-      observer.complete();
-    });
-
-    const sub = singleExecution$.subscribe(this.logHello);
+    execFnWithObservable(this.logHello);
+    execFnWithObservable3Times(this.logHello);
   }
+}
+
+function execFnWithObservable(fn: () => void) {
+  const singleExecution$ = new Observable((observer) => {
+    observer.next('xy');
+    observer.complete();
+  });
+  singleExecution$.subscribe(() => fn());
+}
+
+function execFnWithObservable3Times(fn: () => void) {
+  const singleExecution$ = new Observable((observer) => {
+    observer.next('xy');
+    observer.complete();
+  });
+  concat(...Array.from({ length: 3 }, () => singleExecution$)).subscribe(() =>
+    fn()
+  );
 }
 
 @Component({
