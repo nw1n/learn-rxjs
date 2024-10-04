@@ -122,9 +122,51 @@ export class TryThreeComponent {
 }
 
 @Component({
+  selector: 'app-try-four',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <h1>Try Four Component</h1>
+    <div>valueA: {{ valueA }}</div>
+  `,
+})
+export class TryFourComponent {
+  valueA = 0;
+  logHello = () => {
+    console.log('Hello');
+  };
+
+  constructor() {}
+
+  ngOnInit() {
+    console.log('TryFourComponent');
+    this.regularWay();
+    this.rxjsWay();
+  }
+
+  private regularWay() {
+    this.logHello();
+  }
+
+  private rxjsWay() {
+    const singleExecution$ = new Observable((observer) => {
+      observer.next('xy');
+      // we coould complete the observable for skipping manual unsubscribe
+      //observer.complete();
+    });
+
+    // Subscribe to the observable
+    const sub = singleExecution$.subscribe(this.logHello);
+    console.log('subscribed', sub);
+    sub.unsubscribe();
+    console.log('unsubscribed', sub);
+  }
+}
+
+@Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, TryTwoComponent, TryThreeComponent],
-  template: `<app-try-three></app-try-three> `,
+  imports: [CommonModule, TryTwoComponent, TryThreeComponent, TryFourComponent],
+  template: `<app-try-four></app-try-four>`,
 })
 export class AppComponent {}
