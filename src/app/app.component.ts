@@ -109,11 +109,13 @@ export class TryThreeComponent {
     const interval100ms$ = interval(100);
 
     //const takeFourNumbers = numbers.pipe(take(3));
-    const interval100msTakeThree$ = interval100ms$.pipe(take(3));
-
-    const sub = interval100msTakeThree$.subscribe((x) =>
-      console.log('rx' + (x + 1))
+    const interval100msTakeThree$ = interval100ms$.pipe(
+      take(3),
+      map((x) => x + 1),
+      map((x) => `rx${x}`)
     );
+
+    const sub = interval100msTakeThree$.subscribe((x) => console.log(x));
 
     // we don't need to unsubscribe because take(3) will complete the observable
   }
