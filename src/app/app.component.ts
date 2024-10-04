@@ -146,6 +146,7 @@ export class TryFourComponent {
 
   private regularWay() {
     this.logHello();
+    window.setTimeout(this.logHello, 0);
   }
 
   private rxjsWay() {
