@@ -169,18 +169,18 @@ function createTrippleExecFn() {
 }
 
 function createSingleExecObservable() {
-  return new Observable((observer) => {
-    observer.next();
-    observer.complete();
+  return new Observable((subscribeFn) => {
+    subscribeFn.next();
+    subscribeFn.complete();
   });
 }
 
 function createTrippleExecObservable() {
-  return new Observable((observer) => {
-    observer.next();
-    observer.next();
-    observer.next();
-    observer.complete();
+  return new Observable((subscribeFn) => {
+    subscribeFn.next();
+    subscribeFn.next();
+    subscribeFn.next();
+    subscribeFn.complete();
   });
 }
 
