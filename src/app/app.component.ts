@@ -176,16 +176,12 @@ function createSingleExecObservable() {
 }
 
 function createTrippleExecObservable() {
-  const singleExecution$ = new Observable((observer) => {
+  return new Observable((observer) => {
+    observer.next();
+    observer.next();
     observer.next();
     observer.complete();
   });
-  const trippleExecution$ = concat(
-    singleExecution$,
-    singleExecution$,
-    singleExecution$
-  );
-  return trippleExecution$;
 }
 
 @Component({
