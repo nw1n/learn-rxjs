@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, Signal, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   BehaviorSubject,
@@ -16,26 +16,45 @@ import {
 } from 'rxjs';
 
 @Component({
-  selector: 'app-try-one',
+  selector: 'app-regular-click-event',
   standalone: true,
   imports: [CommonModule],
-  template: ` <h1>Try Two Component</h1> `,
+  template: `<h1>app-regular-click-event</h1>
+    <button (click)="handleClick()">Click me</button>`,
 })
-export class TryOneComponent {
-  ngOnInit() {
-    this.regularWay();
-    this.rxjsWay();
+export class RegularClickEventComponent {
+  handleClick() {
+    console.log('Clicked');
+  }
+}
+
+@Component({
+  selector: 'app-manual-click-event-listener',
+  standalone: true,
+  imports: [CommonModule],
+  template: `<h1>app-manual-click-event-listener</h1>
+    <button #btn>Click me</button>`,
+})
+export class ManualClickEventListenerComponent {
+  @ViewChild('btn') btn!: ElementRef;
+
+  ngAfterViewInit() {
+    this.btn.nativeElement.addEventListener('click', () => {
+      console.log('Clicked');
+    });
   }
 
-  private regularWay() {}
-
-  private rxjsWay() {}
+  ngOnDestroy() {
+    this.btn.nativeElement.removeEventListener('click', () => {
+      console.log('Clicked');
+    });
+  }
 }
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [TryOneComponent],
-  template: `<app-try-one />`,
+  imports: [RegularClickEventComponent, ManualClickEventListenerComponent],
+  template: `<app-regular-click-event /><app-manual-click-event-listener />`,
 })
 export class AppComponent {}
