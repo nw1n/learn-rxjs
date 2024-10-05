@@ -125,34 +125,39 @@ export class TryThreeComponent {
   selector: 'app-try-four',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <h1>Try Four Component</h1>
-    <div>valueA: {{ valueA }}</div>
-  `,
+  template: ` <h1>Try Four Component</h1> `,
 })
 export class TryFourComponent {
-  valueA = 0;
   logHello = () => {
     console.log('Hello');
   };
 
-  constructor() {}
-
   ngOnInit() {
-    console.log('TryFourComponent');
     this.regularWay();
     this.rxjsWay();
   }
 
   private regularWay() {
-    this.logHello();
-    window.setTimeout(this.logHello, 0);
+    execFnWithFn(this.logHello);
+    execFnWithFn3Times(this.logHello);
+    // this.logHello();
+    // window.setTimeout(this.logHello, 0);
   }
 
   private rxjsWay() {
     execFnWithObservable(this.logHello);
     execFnWithObservable3Times(this.logHello);
   }
+}
+
+function execFnWithFn(fn: () => void) {
+  fn();
+}
+
+function execFnWithFn3Times(fn: () => void) {
+  fn();
+  fn();
+  fn();
 }
 
 function execFnWithObservable(fn: () => void) {
@@ -168,9 +173,12 @@ function execFnWithObservable3Times(fn: () => void) {
     observer.next('xy');
     observer.complete();
   });
-  concat(...Array.from({ length: 3 }, () => singleExecution$)).subscribe(() =>
-    fn()
+  const trippleExecution$ = concat(
+    singleExecution$,
+    singleExecution$,
+    singleExecution$
   );
+  trippleExecution$.subscribe(() => fn());
 }
 
 @Component({
