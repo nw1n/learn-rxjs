@@ -170,14 +170,14 @@ function createTrippleExecFn() {
 
 function createSingleExecObservable() {
   return new Observable((observer) => {
-    observer.next('xy');
+    observer.next('xyz');
     observer.complete();
   });
 }
 
 function createTrippleExecObservable() {
   const singleExecution$ = new Observable((observer) => {
-    observer.next('xy');
+    observer.next('xyz');
     observer.complete();
   });
   const trippleExecution$ = concat(
