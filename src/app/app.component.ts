@@ -138,37 +138,44 @@ export class TryFourComponent {
   }
 
   private regularWay() {
-    execFnWithFn(this.logHello);
-    execFnWithFn3Times(this.logHello);
-    // this.logHello();
-    // window.setTimeout(this.logHello, 0);
+    const singleExecFn = createSingleExecFn();
+    const trippleExecFn = createTrippleExecFn();
+
+    singleExecFn(this.logHello);
+    trippleExecFn(this.logHello);
   }
 
   private rxjsWay() {
-    execFnWithObservable(this.logHello);
-    execFnWithObservable3Times(this.logHello);
+    const singleExecObservable$ = createSingleExecObservable();
+    const trippleExecObservable$ = createTrippleExecObservable();
+
+    singleExecObservable$.subscribe(this.logHello);
+    trippleExecObservable$.subscribe(this.logHello);
   }
 }
 
-function execFnWithFn(fn: () => void) {
-  fn();
+function createSingleExecFn() {
+  return (fn: Function) => {
+    fn();
+  };
 }
 
-function execFnWithFn3Times(fn: () => void) {
-  fn();
-  fn();
-  fn();
+function createTrippleExecFn() {
+  return (fn: Function) => {
+    fn();
+    fn();
+    fn();
+  };
 }
 
-function execFnWithObservable(fn: () => void) {
-  const singleExecution$ = new Observable((observer) => {
+function createSingleExecObservable() {
+  return new Observable((observer) => {
     observer.next('xy');
     observer.complete();
   });
-  singleExecution$.subscribe(() => fn());
 }
 
-function execFnWithObservable3Times(fn: () => void) {
+function createTrippleExecObservable() {
   const singleExecution$ = new Observable((observer) => {
     observer.next('xy');
     observer.complete();
@@ -178,7 +185,7 @@ function execFnWithObservable3Times(fn: () => void) {
     singleExecution$,
     singleExecution$
   );
-  trippleExecution$.subscribe(() => fn());
+  return trippleExecution$;
 }
 
 @Component({
