@@ -128,60 +128,30 @@ export class TryThreeComponent {
   template: ` <h1>Try Four Component</h1> `,
 })
 export class TryFourComponent {
-  logHello = () => {
-    console.log('Hello');
-  };
-
   ngOnInit() {
-    this.regularWay();
-    this.rxjsWay();
+    const logHello = () => {
+      console.log('Hello');
+    };
+
+    // using function
+    const trippleExecFn = (fn: Function) => {
+      fn();
+      fn();
+      fn();
+    };
+    trippleExecFn(logHello);
+    // logs "Hello" three times
+
+    // using observable
+    const trippleExecObservable$ = new Observable((subscribeFn) => {
+      subscribeFn.next();
+      subscribeFn.next();
+      subscribeFn.next();
+      subscribeFn.complete();
+    });
+    trippleExecObservable$.subscribe(logHello);
+    // logs "Hello" three times
   }
-
-  private regularWay() {
-    const singleExecFn = createSingleExecFn();
-    const trippleExecFn = createTrippleExecFn();
-
-    singleExecFn(this.logHello);
-    trippleExecFn(this.logHello);
-  }
-
-  private rxjsWay() {
-    const singleExecObservable$ = createSingleExecObservable();
-    const trippleExecObservable$ = createTrippleExecObservable();
-
-    singleExecObservable$.subscribe(this.logHello);
-    trippleExecObservable$.subscribe(this.logHello);
-  }
-}
-
-function createSingleExecFn() {
-  return (fn: Function) => {
-    fn();
-  };
-}
-
-function createTrippleExecFn() {
-  return (fn: Function) => {
-    fn();
-    fn();
-    fn();
-  };
-}
-
-function createSingleExecObservable() {
-  return new Observable((subscribeFn) => {
-    subscribeFn.next();
-    subscribeFn.complete();
-  });
-}
-
-function createTrippleExecObservable() {
-  return new Observable((subscribeFn) => {
-    subscribeFn.next();
-    subscribeFn.next();
-    subscribeFn.next();
-    subscribeFn.complete();
-  });
 }
 
 @Component({
