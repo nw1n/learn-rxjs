@@ -130,6 +130,34 @@ export class TryThreeComponent {
 })
 export class TryFourComponent {
   ngOnInit() {
+    this.regularWay();
+    this.rxJSWay();
+  }
+
+  regularWay() {
+    const logSomething = (arg: any) => {
+      console.log(arg);
+    };
+
+    function subscribe(subscriber: any) {
+      const intervalId = setInterval(() => {
+        subscriber.next('hi');
+      }, 300);
+     
+      return function unsubscribe() {
+        clearInterval(intervalId);
+      };
+    }
+     
+    const unsubscribe = subscribe({ next: logSomething });
+     
+    setTimeout(() => {
+      console.log('unsubscribing');
+      unsubscribe();
+    }, 2000);
+  }
+
+  rxJSWay() {
     const logSomething = (arg: any) => {
       console.log(arg);
     };
