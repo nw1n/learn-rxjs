@@ -129,24 +129,24 @@ export class TryThreeComponent {
 })
 export class TryFourComponent {
   ngOnInit() {
-    const logHello = () => {
-      console.log('Hello');
+    const logHello = (arg: any) => {
+      console.log(arg);
     };
 
     // using function
     const trippleExecFn = (fn: Function) => {
-      fn();
-      fn();
-      fn();
+      fn('one');
+      fn('two');
+      fn('three');
     };
     trippleExecFn(logHello);
     // logs "Hello" three times
 
     // using observable
     const trippleExecObservable$ = new Observable((subscribeFn) => {
-      subscribeFn.next();
-      subscribeFn.next();
-      subscribeFn.next();
+      subscribeFn.next('one');
+      subscribeFn.next('two');
+      subscribeFn.next('three');
       subscribeFn.complete();
     });
     trippleExecObservable$.subscribe(logHello);
