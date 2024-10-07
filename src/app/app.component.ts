@@ -146,8 +146,6 @@ export class TryFourComponent {
     // using observable
     const trippleExecObservable$ = new Observable(
       (subscriber: SafeSubscriber<any>) => {
-        console.log(subscriber);
-        console.log(subscriber.constructor.name);
         subscriber.next('one');
         subscriber.next('two');
         subscriber.next('three');
