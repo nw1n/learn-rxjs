@@ -130,30 +130,28 @@ export class TryThreeComponent {
 })
 export class TryFourComponent {
   ngOnInit() {
-    const logHello = (arg: any) => {
+    const logSomething = (arg: any) => {
       console.log(arg);
     };
 
-    // using function
-    const trippleExecFn = (fn: Function) => {
-      fn('one');
-      fn('two');
-      fn('three');
-    };
-    trippleExecFn(logHello);
-    // logs "Hello" three times
+    const myObservable$ = new Observable((subscriber) => {
+      // Keep track of the interval resource
+      const intervalId = setInterval(() => {
+        subscriber.next('hi');
+      }, 300);
 
-    // using observable
-    const trippleExecObservable$ = new Observable(
-      (subscriber: SafeSubscriber<any>) => {
-        subscriber.next('one');
-        subscriber.next('two');
-        subscriber.next('three');
-        subscriber.complete();
-      }
-    );
-    trippleExecObservable$.subscribe(logHello);
-    // logs "Hello" three times
+      // Every observable should return an unsubscribe function
+      return () => {
+        clearInterval(intervalId);
+      };
+    });
+
+    const mySubscription = myObservable$.subscribe(logSomething);
+
+    setTimeout(() => {
+      console.log('unsubscribing');
+      mySubscription.unsubscribe();
+    }, 2000);
   }
 }
 
