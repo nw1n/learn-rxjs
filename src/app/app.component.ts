@@ -14,6 +14,7 @@ import {
   tap,
   timer,
 } from 'rxjs';
+import { SafeSubscriber } from 'rxjs/internal/Subscriber';
 
 @Component({
   selector: 'app-try-two',
@@ -143,12 +144,16 @@ export class TryFourComponent {
     // logs "Hello" three times
 
     // using observable
-    const trippleExecObservable$ = new Observable((subscribeFn) => {
-      subscribeFn.next('one');
-      subscribeFn.next('two');
-      subscribeFn.next('three');
-      subscribeFn.complete();
-    });
+    const trippleExecObservable$ = new Observable(
+      (subscriber: SafeSubscriber<any>) => {
+        console.log(subscriber);
+        console.log(subscriber.constructor.name);
+        subscriber.next('one');
+        subscriber.next('two');
+        subscriber.next('three');
+        subscriber.complete();
+      }
+    );
     trippleExecObservable$.subscribe(logHello);
     // logs "Hello" three times
   }
