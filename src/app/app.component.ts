@@ -22,19 +22,51 @@ import { SafeSubscriber, Subscriber } from 'rxjs/internal/Subscriber';
   standalone: true,
   imports: [CommonModule],
   template: ` <h1>Example</h1>
-    <div>value: {{ myValue }}</div>`,
+    <div>non-async: {{ myValue | json }}</div>
+    <div>async: {{ $incrementOverTime | async | json }}</div>`,
 })
 export class ExampleComponent {
   myValue = 0;
+  $incrementOverTime!: Observable<number>;
 
   ngOnInit() {
-    this.regularWay();
-    this.rxJSWay();
+    this.nonAsyncWay();
+    this.asyncWay();
   }
 
-  regularWay() {}
+  nonAsyncWay() {
+    const $incrementOverTime = new Observable((observer: Observer<number>) => {
+      let count = 0;
+      const intervalId = setInterval(() => {
+        observer.next(count++);
+      }, 1000);
 
-  rxJSWay() {}
+      return () => {
+        clearInterval(intervalId);
+      };
+    });
+
+    const mySub = $incrementOverTime.subscribe((value) => {
+      this.myValue = value;
+    });
+
+    setTimeout(() => {
+      mySub.unsubscribe();
+    }, 5000);
+  }
+
+  asyncWay() {
+    this.$incrementOverTime = new Observable((observer: Observer<number>) => {
+      let count = 0;
+      const intervalId = setInterval(() => {
+        observer.next(count++);
+      }, 1000);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    });
+  }
 }
 
 @Component({
