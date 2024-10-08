@@ -9,12 +9,13 @@ import {
   map,
   mapTo,
   Observable,
+  Observer,
   of,
   take,
   tap,
   timer,
 } from 'rxjs';
-import { SafeSubscriber } from 'rxjs/internal/Subscriber';
+import { SafeSubscriber, Subscriber } from 'rxjs/internal/Subscriber';
 
 @Component({
   selector: 'app-try-two',
@@ -130,7 +131,7 @@ export class TryThreeComponent {
 })
 export class TryFourComponent {
   ngOnInit() {
-    this.regularWay();
+    //this.regularWay();
     this.rxJSWay();
   }
 
@@ -167,7 +168,7 @@ export class TryFourComponent {
       console.log(arg);
     };
 
-    const myObservable$ = new Observable((subscriber) => {
+    const myObservable$ = new Observable((subscriber: Subscriber<any>) => {
       // Keep track of the interval resource
       const intervalId = setInterval(() => {
         subscriber.next('hi');
@@ -180,12 +181,26 @@ export class TryFourComponent {
       };
     });
 
+    // we can pass an observer object or as shorthand just a function to the subscribe method
     const mySubscription = myObservable$.subscribe(logSomething);
+
+    // this is the same as above but with logSomething wrapped in an observer object
+    const myObserver: Observer<any> = {
+      next: logSomething,
+      complete: () => {
+        // skip
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    };
+    const mySubscription2 = myObservable$.subscribe(myObserver);
 
     // unsubscribe after 2 seconds
     setTimeout(() => {
       console.log('unsubscribing');
       mySubscription.unsubscribe();
+      mySubscription2.unsubscribe();
     }, 2000);
   }
 }
