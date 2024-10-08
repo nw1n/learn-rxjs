@@ -139,18 +139,23 @@ export class TryFourComponent {
       console.log(arg);
     };
 
-    function subscribe(subscriber: any) {
+    function subscribeToObservable(subscriber: any) {
       const intervalId = setInterval(() => {
         subscriber.next('hi');
       }, 300);
-     
+
       return function unsubscribe() {
         clearInterval(intervalId);
       };
     }
-     
-    const unsubscribe = subscribe({ next: logSomething });
-     
+
+    // we wrap the logSomething function in an observer object
+    const observer = { next: logSomething };
+
+    // we call the subscribeToObservable function with the observer
+    const unsubscribe = subscribeToObservable(observer);
+
+    // unsubscribe after 2 seconds
     setTimeout(() => {
       console.log('unsubscribing');
       unsubscribe();
@@ -168,7 +173,8 @@ export class TryFourComponent {
         subscriber.next('hi');
       }, 300);
 
-      // Every observable should return an unsubscribe function
+      // Every observable should return an unsubscribe function.
+      // E.g. here we return a function that clears the interval resource.
       return () => {
         clearInterval(intervalId);
       };
@@ -176,6 +182,7 @@ export class TryFourComponent {
 
     const mySubscription = myObservable$.subscribe(logSomething);
 
+    // unsubscribe after 2 seconds
     setTimeout(() => {
       console.log('unsubscribing');
       mySubscription.unsubscribe();
