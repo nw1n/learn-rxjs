@@ -170,7 +170,11 @@ export class TryFourComponent {
     };
 
     const myObservable$ = new Observable((subscriber: Subscriber<any>) => {
-      // this defines the "subscribe" function that well be called with .subscribe(observable)
+      // this defines the subscribe-function that will be called with .subscribe(observable)
+      // PLEASE NOTE: this function is not 100% identical to the function that is called with .subscribe(observer)
+      // But it provides the main functionality of the subscribe function and they are very closely related.
+      // The difference becomes clear by the fact that this function takes a subscriber object as argument
+      // and the subscribe function takes an observer object as argument.
 
       // Keep track of the interval resource
       const intervalId = setInterval(() => {
