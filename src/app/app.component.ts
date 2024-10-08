@@ -21,48 +21,79 @@ import { SafeSubscriber, Subscriber } from 'rxjs/internal/Subscriber';
   selector: 'example-component',
   standalone: true,
   imports: [CommonModule],
-  template: ` <h1>Example</h1>
-    <div>non-async: {{ myValue | json }}</div>
-    <div>async: {{ $incrementOverTime | async | json }}</div>`,
+  template: `
+    <h1>Example</h1>
+    <p>myTemplateVal {{ myTemplateVal }}</p>
+    <p>myTemplateValAsync {{ $executeThrice | async }}</p>
+    <p>myTemplateValSignal {{ executeThriceSignal() }}</p>
+    <p>myTemplateValSignalTwice {{ executeTwiceSignal() }}</p>
+    <p>myTemplateValSignalTwiceDouble {{ executeTwiceDoubleSignal() }}</p>
+    <p>myTemplateValAnotherObservable {{ $anotherObservable | async }}</p>
+  `,
 })
 export class ExampleComponent {
-  myValue = 0;
-  $incrementOverTime!: Observable<number>;
+  myTemplateVal = 0;
+  $executeThrice!: Observable<any>;
+  executeThriceSignal!: Signal<any>;
+  executeTwiceSignal!: Signal<any>;
+  executeTwiceDoubleSignal!: Signal<any>;
+  $anotherObservable!: Observable<any>;
+
+  constructor() {
+    console.log('this start of constructor');
+    const $executeThrice = new Observable((observer: Observer<number>) => {
+      observer.next(1);
+      observer.next(2);
+      observer.next(3);
+      observer.complete();
+    }).pipe(tap((value) => console.log(value)));
+    // pipe tap console.log will be called before 'this end of constructor'
+    // because of toSignal
+    this.executeThriceSignal = toSignal($executeThrice);
+
+    const $executeTwice = $executeThrice.pipe(take(2));
+    this.executeTwiceSignal = toSignal($executeTwice);
+
+    const $executeTwiceDouble = $executeTwice.pipe(map((value) => value * 2));
+    this.executeTwiceDoubleSignal = toSignal($executeTwiceDouble);
+
+    this.$anotherObservable = new Observable((observer: Observer<any>) => {
+      observer.next('A');
+      observer.next('B');
+      observer.complete();
+    }).pipe(tap((value) => console.log(value)));
+    // this will be called after 'this end of constructor', when the template is rendered
+
+    console.log('this end of constructor');
+  }
 
   ngOnInit() {
-    this.nonAsyncWay();
-    this.asyncWay();
+    //this.baseWay();
+    this.otherWay();
   }
 
-  nonAsyncWay() {
-    const $incrementOverTime = new Observable((observer: Observer<number>) => {
-      let count = 0;
-      const intervalId = setInterval(() => {
-        observer.next(count++);
-      }, 1000);
+  otherWay() {}
 
-      return () => {
-        clearInterval(intervalId);
-      };
+  baseWay() {
+    const $executeThrice = new Observable((observer: Observer<number>) => {
+      observer.next(1);
+      observer.next(2);
+      observer.next(3);
+      observer.complete();
+    });
+    this.$executeThrice = $executeThrice;
+
+    $executeThrice.subscribe({
+      next: (value) => console.log(value),
+      complete: () => console.log('Complete 1'),
     });
 
-    const observerNextFn = (value: number) => {
-      this.myValue = value;
-    };
-
-    const mySub = $incrementOverTime.subscribe(observerNextFn);
-  }
-
-  asyncWay() {
-    this.$incrementOverTime = new Observable((observer: Observer<number>) => {
-      let count = 0;
-      const intervalId = setInterval(() => {
-        observer.next(count++);
-      }, 1000);
-
-      return () => {
-        clearInterval(intervalId);
-      };
+    $executeThrice.subscribe({
+      next: (value) => {
+        this.myTemplateVal = value;
+        console.log(value);
+      },
+      complete: () => console.log('Complete 2'),
     });
   }
 }
