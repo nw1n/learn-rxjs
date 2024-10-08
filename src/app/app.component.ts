@@ -170,6 +170,8 @@ export class TryFourComponent {
     };
 
     const myObservable$ = new Observable((subscriber: Subscriber<any>) => {
+      // this defines the "subscribe" function that well be called with .subscribe(observable)
+
       // Keep track of the interval resource
       const intervalId = setInterval(() => {
         subscriber.next('hi');
@@ -206,12 +208,20 @@ export class TryFourComponent {
   }
 
   doSomePractive() {
+    let mySubscription: any;
     const myObservable$ = new Observable((subscriber: Subscriber<any>) => {
       subscriber.next('hi');
+      subscriber.next('hi');
+      subscriber.next('hi');
       console.log(subscriber);
+      mySubscription = subscriber;
+      mySubscription.unsubscribe();
+      mySubscription.unsubscribe();
+      subscriber.next('hi');
+      subscriber.next('hi');
     });
 
-    const mySubscription = myObservable$.subscribe((value) => {
+    myObservable$.subscribe((value) => {
       console.log(value);
     });
 
@@ -220,8 +230,8 @@ export class TryFourComponent {
     // unsubscribe after 2 seconds
     setTimeout(() => {
       console.log('unsubscribing');
-      mySubscription.unsubscribe();
       console.log(mySubscription);
+      mySubscription.unsubscribe();
     }, 2000);
   }
 }
