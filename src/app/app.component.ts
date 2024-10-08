@@ -132,7 +132,8 @@ export class TryThreeComponent {
 export class TryFourComponent {
   ngOnInit() {
     //this.regularWay();
-    this.rxJSWay();
+    //this.rxJSWay();
+    this.doSomePractive();
   }
 
   regularWay() {
@@ -201,6 +202,26 @@ export class TryFourComponent {
       console.log('unsubscribing');
       mySubscription.unsubscribe();
       mySubscription2.unsubscribe();
+    }, 2000);
+  }
+
+  doSomePractive() {
+    const myObservable$ = new Observable((subscriber: Subscriber<any>) => {
+      subscriber.next('hi');
+      console.log(subscriber);
+    });
+
+    const mySubscription = myObservable$.subscribe((value) => {
+      console.log(value);
+    });
+
+    console.log(mySubscription);
+
+    // unsubscribe after 2 seconds
+    setTimeout(() => {
+      console.log('unsubscribing');
+      mySubscription.unsubscribe();
+      console.log(mySubscription);
     }, 2000);
   }
 }
