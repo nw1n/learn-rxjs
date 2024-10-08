@@ -5,6 +5,7 @@ import {
   BehaviorSubject,
   concat,
   concatAll,
+  concatMap,
   fromEvent,
   interval,
   map,
@@ -76,7 +77,14 @@ export class ExampleComponent {
       mergeAll() // this log A, B, C three times
     );
 
-    $emitFlattened.subscribe({
+    const $concatMapped = $executeThrice.pipe(
+      // concatMap is a shorthand: it is the same as map + concatAll
+      concatMap((val) => {
+        return $emitABC;
+      })
+    );
+
+    $concatMapped.subscribe({
       next: (val) => {
         console.log('val', val);
       },
