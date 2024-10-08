@@ -127,13 +127,17 @@ export class TryThreeComponent {
   selector: 'app-try-four',
   standalone: true,
   imports: [CommonModule],
-  template: ` <h1>Try Four Component</h1> `,
+  template: ` <h1>Try Four Component</h1>
+    <div>value: {{ myValue }}</div>`,
 })
 export class TryFourComponent {
+  myValue = 0;
+
   ngOnInit() {
     //this.regularWay();
     //this.rxJSWay();
-    this.doSomePractive();
+    //this.doSomePractive();
+    this.doMorePractice();
   }
 
   regularWay() {
@@ -237,6 +241,24 @@ export class TryFourComponent {
       console.log(mySubscription);
       mySubscription.unsubscribe();
     }, 2000);
+  }
+
+  doMorePractice() {
+    const incrementMyValue = () => {
+      this.myValue++;
+      console.log('incrementMyValue');
+    };
+
+    const executeThrice$ = new Observable((subscriber: Subscriber<any>) => {
+      subscriber.next();
+      subscriber.next();
+      subscriber.next();
+      subscriber.complete();
+    });
+
+    executeThrice$.subscribe({
+      next: incrementMyValue,
+    });
   }
 }
 
