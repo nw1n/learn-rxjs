@@ -46,9 +46,11 @@ export class ExampleComponent {
       };
     });
 
-    const mySub = $incrementOverTime.subscribe((value) => {
+    const observerNextFn = (value: number) => {
       this.myValue = value;
-    });
+    };
+
+    const mySub = $incrementOverTime.subscribe(observerNextFn);
 
     setTimeout(() => {
       mySub.unsubscribe();
