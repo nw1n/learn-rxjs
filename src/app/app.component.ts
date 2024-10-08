@@ -4,13 +4,17 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import {
   BehaviorSubject,
   concat,
+  concatAll,
   fromEvent,
   interval,
   map,
   mapTo,
+  mergeAll,
   Observable,
   Observer,
   of,
+  switchAll,
+  switchMap,
   take,
   tap,
   timer,
@@ -29,7 +33,61 @@ import { SafeSubscriber, Subscriber } from 'rxjs/internal/Subscriber';
 export class ExampleComponent {
   myTemplateVal = 0;
 
-  constructor() {}
+  constructor() {
+    const $executeThrice = new Observable<number>(
+      (observer: Observer<number>) => {
+        observer.next(1);
+        observer.next(2);
+        observer.next(3);
+        observer.complete();
+      }
+    );
+
+    const $emitABC = new Observable<string>((observer: Observer<string>) => {
+      observer.next('A');
+      observer.next('B');
+      observer.next('C');
+      observer.complete();
+    });
+
+    const $emitNested = $executeThrice.pipe(
+      map((val) => {
+        return $emitABC;
+      })
+    );
+
+    // $emitNested.subscribe({
+    //   next: (val) => {
+    //     console.log('val', val);
+    //   },
+    // });
+
+    const $emitFlattened = $executeThrice.pipe(
+      map((val) => {
+        return $emitABC;
+      }),
+      concatAll() // this log A, B, C three times
+    );
+
+    const $emitFlattened2 = $executeThrice.pipe(
+      map((val) => {
+        return $emitABC;
+      }),
+      mergeAll() // this log A, B, C three times
+    );
+
+    $emitFlattened.subscribe({
+      next: (val) => {
+        console.log('val', val);
+      },
+    });
+
+    // $executeThrice.subscribe({
+    //   next: (val) => {
+    //     console.log('val', val);
+    //   },
+    // });
+  }
 }
 
 @Component({
