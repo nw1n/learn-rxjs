@@ -244,15 +244,17 @@ export class TryFourComponent {
   }
 
   doMorePractice() {
-    const incrementMyValue = () => {
-      this.myValue++;
-      console.log('incrementMyValue');
+    const incrementMyValue = (val: any) => {
+      const newVal = val + 1;
+      return newVal;
     };
 
     const executeThrice$ = new Observable((subscriber: Subscriber<any>) => {
-      subscriber.next();
-      subscriber.next();
-      subscriber.next();
+      let val: any = this.myValue;
+      val = subscriber.next();
+      val = subscriber.next();
+      val = subscriber.next();
+      this.myValue = val;
       subscriber.complete();
     });
 
