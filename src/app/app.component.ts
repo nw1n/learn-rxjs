@@ -51,10 +51,6 @@ export class ExampleComponent {
     };
 
     const mySub = $incrementOverTime.subscribe(observerNextFn);
-
-    setTimeout(() => {
-      mySub.unsubscribe();
-    }, 5000);
   }
 
   asyncWay() {
