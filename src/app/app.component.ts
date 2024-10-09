@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Signal, ViewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterModule } from '@angular/router';
 import {
   BehaviorSubject,
   concat,
@@ -26,9 +25,8 @@ import { SafeSubscriber, Subscriber } from 'rxjs/internal/Subscriber';
 @Component({
   selector: 'example-component',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule],
   template: `
-    <router-outlet></router-outlet>
     <h1>Example</h1>
     <p>myTemplateVal {{ myTemplateVal }}</p>
   `,
