@@ -14,6 +14,7 @@ import {
   Observable,
   Observer,
   of,
+  Subject,
   switchAll,
   switchMap,
   take,
@@ -28,73 +29,45 @@ import { SafeSubscriber, Subscriber } from 'rxjs/internal/Subscriber';
   imports: [CommonModule],
   template: `
     <h1>Example</h1>
+    <button (click)="doChanges()">Increment</button>
     <p>myTemplateVal {{ myTemplateVal }}</p>
+    <p>myBhSubject.getValue() {{ myBhSubject.getValue() }}</p>
+    <p>myBhSubject async {{ myBhSubject | async }}</p>
+    <p>
+      myTemplateValThatGetsUpdateBySubject
+      {{ myTemplateValThatGetsUpdateBySubject }}
+    </p>
+    <p>mySimpleSubject async {{ mySimpleSubject | async }}</p>
+    <p>
+      myObservableThatIsDerivedFromBhSubject async
+      {{ myObservableThatIsDerivedFromBhSubject | async }}
+    </p>
   `,
 })
 export class ExampleComponent {
   myTemplateVal = 0;
+  myTemplateValThatGetsUpdateBySubject = 0;
+  myBhSubject = new BehaviorSubject(0); // a subject is basically just a stateless event emitter
+  mySimpleSubject = new Subject<number>();
+
+  // this kind of calls .next immediately after creation with asObservable() if it is a behavioursubject
+  // (not if it's a simple subject).
+  // then it calls .next whenever the Subject/BehaviorSubject calls .next
+  myObservableThatIsDerivedFromBhSubject = this.myBhSubject.asObservable();
 
   constructor() {
-    const $executeThrice = new Observable<number>(
-      (observer: Observer<number>) => {
-        observer.next(1);
-        observer.next(2);
-        observer.next(3);
-        observer.complete();
-      }
-    );
-
-    const $emitABC = new Observable<string>((observer: Observer<string>) => {
-      observer.next('A');
-      observer.next('B');
-      observer.next('C');
-      observer.complete();
+    this.mySimpleSubject.subscribe((val) => {
+      this.myTemplateValThatGetsUpdateBySubject = val;
     });
+  }
 
-    const $emitNested = $executeThrice.pipe(
-      map((val) => {
-        return $emitABC;
-      })
-    );
+  doChanges() {
+    this.myTemplateVal++;
+    const newVal = this.myBhSubject.getValue() + 1;
+    this.myBhSubject.next(newVal);
 
-    // $emitNested.subscribe({
-    //   next: (val) => {
-    //     console.log('val', val);
-    //   },
-    // });
-
-    const $emitFlattened = $executeThrice.pipe(
-      map((val) => {
-        return $emitABC;
-      }),
-      concatAll() // this log A, B, C three times
-    );
-
-    const $emitFlattened2 = $executeThrice.pipe(
-      map((val) => {
-        return $emitABC;
-      }),
-      mergeAll() // this log A, B, C three times
-    );
-
-    const $concatMapped = $executeThrice.pipe(
-      // concatMap is a shorthand: it is the same as map + concatAll
-      concatMap((val) => {
-        return $emitABC;
-      })
-    );
-
-    $concatMapped.subscribe({
-      next: (val) => {
-        console.log('val', val);
-      },
-    });
-
-    // $executeThrice.subscribe({
-    //   next: (val) => {
-    //     console.log('val', val);
-    //   },
-    // });
+    const newVal2 = this.myTemplateValThatGetsUpdateBySubject + 1;
+    this.mySimpleSubject.next(newVal2);
   }
 }
 
