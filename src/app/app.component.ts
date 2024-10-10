@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  input,
+  Signal,
+  ViewChild,
+} from '@angular/core';
 import {
   BehaviorSubject,
   concat,
@@ -21,16 +27,39 @@ import {
   tap,
   timer,
 } from 'rxjs';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+
+@Component({
+  selector: 'child-component',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <h1>Child</h1>
+    <p>myInput: {{ myInput() }}</p>
+    <p>my async observable: {{ myObservable | async }}</p>
+  `,
+})
+export class TheChildComponent {
+  myTemplateVal = 0;
+  myInput = input<number>(0);
+  myObservable = toObservable(this.myInput);
+
+  constructor() {
+    this.myObservable.subscribe((val) => {
+      console.log('my observable emitted', val);
+    });
+  }
+}
 
 @Component({
   selector: 'example-component',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TheChildComponent],
   template: `
     <h1>Example</h1>
     <p>Val: {{ myTemplateVal }}</p>
-    <p>async observable: {{ myObservable | async }}</p>
-    <button (click)="emittEvent()">Increment</button>
+    <button (click)="emittEvent()">Emit Event</button>
+    <child-component [myInput]="myTemplateVal"></child-component>
   `,
 })
 export class ExampleComponent {
