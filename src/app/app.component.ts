@@ -33,23 +33,9 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
   selector: 'child-component',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <h1>Child</h1>
-    <p>myInput: {{ myInput() }}</p>
-    <p>my async observable: {{ myObservable | async }}</p>
-  `,
+  template: ` <h1>Child</h1> `,
 })
-export class TheChildComponent {
-  myTemplateVal = 0;
-  myInput = input<number>(0);
-  myObservable = toObservable(this.myInput);
-
-  constructor() {
-    this.myObservable.subscribe((val) => {
-      console.log('my observable emitted', val);
-    });
-  }
-}
+export class TheChildComponent {}
 
 @Component({
   selector: 'example-component',
@@ -57,46 +43,10 @@ export class TheChildComponent {
   imports: [CommonModule, TheChildComponent],
   template: `
     <h1>Example</h1>
-    <p>Val: {{ myTemplateVal }}</p>
-    <button (click)="emittEvent()">Emit Event</button>
-    <child-component [myInput]="myTemplateVal"></child-component>
+    <child-component></child-component>
   `,
 })
-export class ExampleComponent {
-  myTemplateVal = 0;
-  myEventEmitter = new EventEmitter();
-  myObservable: Observable<number>;
-
-  constructor() {
-    this.myObservable = from(this.myEventEmitter);
-  }
-
-  ngAfterViewInit() {
-    console.log('ngAfterViewInit');
-
-    this.myEventEmitter.subscribe((val) => {
-      console.log('Event emitted', val);
-      this.myTemplateVal = val;
-    });
-
-    this.myObservable.subscribe((val) => {
-      console.log('Observable emitted', val);
-      this.myTemplateVal = val;
-    });
-
-    const myDoubleLoggerObservable$ = this.myObservable.pipe(
-      map((val) => val * 2)
-    );
-
-    myDoubleLoggerObservable$.subscribe((val) => {
-      console.log('Double Observable emitted', val);
-    });
-  }
-
-  emittEvent() {
-    this.myEventEmitter.emit(this.myTemplateVal + 1);
-  }
-}
+export class ExampleComponent {}
 
 @Component({
   selector: 'app-root',
