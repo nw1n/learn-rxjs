@@ -43,8 +43,6 @@ import { N } from '@angular/cdk/keycodes';
   imports: [CommonModule, FormsModule],
   template: `
     <h1>Child</h1>
-    <input type="text" [(ngModel)]="title" />
-    <p>{{ titleUpperCase() }}</p>
     <input
       type="text"
       [ngModel]="countAsText | async"
@@ -58,8 +56,6 @@ import { N } from '@angular/cdk/keycodes';
 export class TheChildComponent {
   externalNumber = input<number | null>(0);
 
-  title = model('default-title');
-  titleUpperCase = computed(() => this.title().toUpperCase());
   countAsText = new BehaviorSubject<string>('eight');
   countAsNumber = new BehaviorSubject<number>(0);
   textChange$: Observable<string> = this.countAsText.asObservable();
