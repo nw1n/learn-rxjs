@@ -56,7 +56,7 @@ import { N } from '@angular/cdk/keycodes';
   `,
 })
 export class TheChildComponent {
-  externalNumber = input(0);
+  externalNumber = input<number | null>(0);
 
   title = model('default-title');
   titleUpperCase = computed(() => this.title().toUpperCase());
@@ -66,7 +66,9 @@ export class TheChildComponent {
   textChangeAsNumber$: Observable<number> = this.textChange$.pipe(
     map(nrStrToNr)
   );
-  externalNumberChange$: Observable<number> = toObservable(this.externalNumber);
+  externalNumberChange$: Observable<number | null> = toObservable(
+    this.externalNumber
+  );
 
   @Output()
   numberChange = new EventEmitter<number>();
@@ -114,31 +116,30 @@ export class TheChildComponent {
   imports: [CommonModule, TheChildComponent],
   template: `
     <h1>Example</h1>
-    <p>outerNumber: {{ outerNumber() }}</p>
+    <p>outerNumber: {{ outerNumber | async }}</p>
     <button (click)="incrementOutterNumber()">increment outer</button>
     <child-component
       (numberChange)="handleChildNumberChange($event)"
-      [externalNumber]="outerNumber()"
+      [externalNumber]="outerNumber | async"
     ></child-component>
   `,
 })
 export class ExampleComponent {
-  outerNumber = signal(7);
-
+  outerNumber = new BehaviorSubject<number>(7);
   handleChildNumberChange(value: any) {
     console.log('handleChildNumberChange', value);
-    if (this.outerNumber() === value) {
+    if (this.outerNumber.getValue() === value) {
       return;
     }
-    this.outerNumber.set(value);
+    this.outerNumber.next(value);
   }
 
   incrementOutterNumber() {
-    let newValue = this.outerNumber() + 1;
+    let newValue = this.outerNumber.getValue() + 1;
     if (newValue > 9) {
       newValue = 0;
     }
-    this.outerNumber.set(newValue);
+    this.outerNumber.next(newValue);
   }
 }
 
