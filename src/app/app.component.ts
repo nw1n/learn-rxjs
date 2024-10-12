@@ -58,6 +58,8 @@ export class TheChildComponent {
     return nrStrToNr(this.countAsText());
   });
 
+  numberChange = new EventEmitter<number>();
+
   incrementNumber() {
     let newValue = this.countAsNumber() + 1;
     if (newValue > 9) {
