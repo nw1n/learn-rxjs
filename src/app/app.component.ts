@@ -60,8 +60,16 @@ export class TheChildComponent {
 
   constructor() {
     this.countAsText.pipe(map(nrStrToNr)).subscribe((val: any) => {
-      this.countAsNumber.next(val);
+      this.setNumber(val);
     });
+  }
+
+  setNumber(value: number) {
+    this.countAsNumber.next(value);
+  }
+
+  setText(value: string) {
+    this.countAsText.next(value);
   }
 
   incrementNumber() {
@@ -69,11 +77,11 @@ export class TheChildComponent {
     if (newValue > 9) {
       newValue = 0;
     }
-    this.countAsText.next(nrToStr(newValue));
+    this.setText(nrToStr(newValue));
   }
 
   handleTextChange(value: string) {
-    this.countAsText.next(value);
+    this.setText(value);
   }
 }
 
