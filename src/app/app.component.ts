@@ -42,34 +42,38 @@ import { FormsModule } from '@angular/forms';
     <p>{{ titleUpperCase() }}</p>
     <input
       type="text"
-      [ngModel]="countAsText()"
+      [ngModel]="countAsText | async"
       (ngModelChange)="handleTextChange($event)"
     />
-    <p>countAsText: {{ countAsText() }}</p>
-    <p>countAsNumber: {{ countAsNumber() }}</p>
+    <p>countAsText: {{ countAsText | async }}</p>
+    <p>countAsNumber: {{ countAsNumber | async }}</p>
     <button (click)="incrementNumber()">increment</button>
   `,
 })
 export class TheChildComponent {
   title = model('default-title');
   titleUpperCase = computed(() => this.title().toUpperCase());
-  countAsText = model('zero');
-  countAsNumber = computed<number>(() => {
-    return nrStrToNr(this.countAsText());
-  });
+  countAsText = new BehaviorSubject<string>('zero');
+  countAsNumber = new BehaviorSubject<number>(0);
 
   numberChange = new EventEmitter<number>();
 
+  constructor() {
+    this.countAsText.pipe(map(nrStrToNr)).subscribe((val: any) => {
+      this.countAsNumber.next(val);
+    });
+  }
+
   incrementNumber() {
-    let newValue = this.countAsNumber() + 1;
+    let newValue = this.countAsNumber.getValue() + 1;
     if (newValue > 9) {
       newValue = 0;
     }
-    this.countAsText.set(nrToStr(newValue));
+    this.countAsText.next(nrToStr(newValue));
   }
 
   handleTextChange(value: string) {
-    this.countAsText.set(value);
+    this.countAsText.next(value);
   }
 }
 
