@@ -5,6 +5,8 @@ import {
   EventEmitter,
   input,
   model,
+  Output,
+  output,
   Signal,
   ViewChild,
 } from '@angular/core';
@@ -55,17 +57,22 @@ export class TheChildComponent {
   titleUpperCase = computed(() => this.title().toUpperCase());
   countAsText = new BehaviorSubject<string>('zero');
   countAsNumber = new BehaviorSubject<number>(0);
+  textChange$: Observable<string> = this.countAsText.asObservable();
+  textChangeAsNumber$: Observable<number> = this.textChange$.pipe(
+    map(nrStrToNr)
+  );
 
+  @Output()
   numberChange = new EventEmitter<number>();
 
   constructor() {
-    this.countAsText.pipe(map(nrStrToNr)).subscribe((val: any) => {
-      this.setNumber(val);
+    this.textChangeAsNumber$.subscribe((val: any) => {
+      this.countAsNumber.next(val);
     });
-  }
 
-  setNumber(value: number) {
-    this.countAsNumber.next(value);
+    this.textChangeAsNumber$.subscribe((val: any) => {
+      this.numberChange.emit(val);
+    });
   }
 
   setText(value: string) {
@@ -91,10 +98,16 @@ export class TheChildComponent {
   imports: [CommonModule, TheChildComponent],
   template: `
     <h1>Example</h1>
-    <child-component></child-component>
+    <child-component
+      (numberChange)="handleChildNumberChange($event)"
+    ></child-component>
   `,
 })
-export class ExampleComponent {}
+export class ExampleComponent {
+  handleChildNumberChange(value: any) {
+    console.log('handleChildNumberChange', value);
+  }
+}
 
 @Component({
   selector: 'app-root',
