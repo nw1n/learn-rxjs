@@ -95,7 +95,9 @@ export class TheChildComponent {
   }
 
   ngOnInit() {
+    // this will log the initial value of the component
     console.log('OnInit ChildState', this.countAsText.getValue());
+    // this will log the external value that is passed to the component
     setTimeout(() => {
       console.log('OnInit ChildState async', this.countAsText.getValue());
     });
