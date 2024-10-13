@@ -27,6 +27,7 @@ import {
   Observer,
   of,
   Subject,
+  Subscription,
   switchAll,
   switchMap,
   take,
@@ -35,7 +36,6 @@ import {
 } from 'rxjs';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { N } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'child-component',
@@ -56,7 +56,7 @@ import { N } from '@angular/cdk/keycodes';
 export class TheChildComponent {
   externalNumber = input<number | null>(0);
 
-  countAsText = new BehaviorSubject<string>('eight');
+  countAsText = new BehaviorSubject<string>('one');
   countAsNumber = new BehaviorSubject<number>(0);
   textChange$: Observable<string> = this.countAsText.asObservable();
   textChangeAsNumber$: Observable<number> = this.textChange$.pipe(
@@ -69,21 +69,52 @@ export class TheChildComponent {
   @Output()
   numberChange = new EventEmitter<number>();
 
+  allSubscriptions: Subscription[] = [];
+
   constructor() {
-    this.textChangeAsNumber$.subscribe((val: any) => {
-      this.countAsNumber.next(val);
+    this.allSubscriptions.push(
+      this.textChangeAsNumber$.subscribe((val: any) => {
+        this.countAsNumber.next(val);
+      })
+    );
+
+    this.allSubscriptions.push(
+      this.countAsNumber.subscribe((val: any) => {
+        this.numberChange.emit(val);
+      })
+    );
+
+    this.allSubscriptions.push(
+      this.externalNumberChange$.subscribe((val: any) => {
+        if (Number.isNaN(val)) {
+          return;
+        }
+        this.setText(nrToStr(val));
+      })
+    );
+  }
+
+  ngOnInit() {
+    console.log('OnInit ChildState', this.countAsText.getValue());
+    setTimeout(() => {
+      console.log('OnInit ChildState async', this.countAsText.getValue());
+    });
+  }
+
+  ngAfterViewInit() {}
+
+  ngOnDestroy() {
+    this.allSubscriptions.forEach((sub) => {
+      console.log(sub);
+      sub.unsubscribe();
     });
 
-    this.textChangeAsNumber$.subscribe((val: any) => {
-      this.numberChange.emit(val);
-    });
-
-    this.externalNumberChange$.subscribe((val: any) => {
-      if (Number.isNaN(val)) {
-        return;
-      }
-      this.setText(nrToStr(val));
-    });
+    setTimeout(() => {
+      this.allSubscriptions.forEach((sub) => {
+        console.log(sub);
+        sub.unsubscribe();
+      });
+    }, 0);
   }
 
   setText(value: string) {
@@ -114,14 +145,19 @@ export class TheChildComponent {
     <h1>Example</h1>
     <p>outerNumber: {{ outerNumber | async }}</p>
     <button (click)="incrementOutterNumber()">increment outer</button>
+    <button (click)="toggleChild()">toggle child</button>
+    @if(showChild) {
     <child-component
       (numberChange)="handleChildNumberChange($event)"
       [externalNumber]="outerNumber | async"
     ></child-component>
+    }
   `,
 })
 export class ExampleComponent {
   outerNumber = new BehaviorSubject<number>(7);
+  showChild = true;
+
   handleChildNumberChange(value: any) {
     console.log('handleChildNumberChange', value);
     if (this.outerNumber.getValue() === value) {
@@ -136,6 +172,10 @@ export class ExampleComponent {
       newValue = 0;
     }
     this.outerNumber.next(newValue);
+  }
+
+  toggleChild() {
+    this.showChild = !this.showChild;
   }
 }
 
