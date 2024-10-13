@@ -49,77 +49,66 @@ import { FormsModule } from '@angular/forms';
       (ngModelChange)="handleTextChange($event)"
     />
     <p>countAsText: {{ countAsText | async }}</p>
-    <p>countAsNumber: {{ countAsNumber | async }}</p>
+    <p>countAsNumber: {{ countAsNr | async }}</p>
     <button (click)="incrementNumber()">increment</button>
   `,
 })
 export class TheChildComponent {
-  externalNumber = input<number | null>(0);
+  externalNr = input<number | null>(0);
 
   countAsText = new BehaviorSubject<string>('one');
-  countAsNumber = new BehaviorSubject<number>(0);
+  countAsNr = new BehaviorSubject<number>(0);
   textChange$: Observable<string> = this.countAsText.asObservable();
-  textChangeAsNumber$: Observable<number> = this.textChange$.pipe(
-    map(nrStrToNr)
-  );
-  externalNumberChange$: Observable<number | null> = toObservable(
-    this.externalNumber
-  );
+  textChangeAsNr$: Observable<number> = this.textChange$.pipe(map(nrStrToNr));
+  externalNrChange$: Observable<number | null> = toObservable(this.externalNr);
 
   @Output()
   numberChange = new EventEmitter<number>();
 
-  allSubscriptions: Subscription[] = [];
+  sub1: Subscription | null = null;
+  sub2: Subscription | null = null;
+  sub3: Subscription | null = null;
 
   constructor() {
-    this.allSubscriptions.push(
-      this.textChangeAsNumber$.subscribe((val: any) => {
-        this.countAsNumber.next(val);
-      })
-    );
+    this.sub1 = this.textChangeAsNr$.subscribe((val: any) => {
+      this.countAsNr.next(val);
+    });
 
-    this.allSubscriptions.push(
-      this.countAsNumber.subscribe((val: any) => {
-        this.numberChange.emit(val);
-      })
-    );
+    this.sub2 = this.countAsNr.subscribe((val: any) => {
+      this.numberChange.emit(val);
+    });
 
-    this.allSubscriptions.push(
-      this.externalNumberChange$.subscribe((val: any) => {
-        if (Number.isNaN(val)) {
-          return;
-        }
-        this.setText(nrToStr(val));
-      })
-    );
+    this.sub3 = this.externalNrChange$.subscribe((val: any) => {
+      if (Number.isNaN(val)) {
+        return;
+      }
+      this.setTextIfNotSame(nrToStr(val));
+    });
   }
 
   ngOnInit() {
     // this will log the initial value of the component
-    console.log('OnInit ChildState', this.countAsText.getValue());
+    console.log('OnInit ChildState:', this.countAsText.getValue());
     // this will log the external value that is passed to the component
     setTimeout(() => {
-      console.log('OnInit ChildState async', this.countAsText.getValue());
+      console.log('OnInit ChildState async:', this.countAsText.getValue());
     });
   }
 
   ngAfterViewInit() {}
 
   ngOnDestroy() {
-    this.allSubscriptions.forEach((sub) => {
-      console.log(sub);
-      sub.unsubscribe();
-    });
+    console.log('OnDestroy Child');
+    console.log(this.sub1);
 
-    setTimeout(() => {
-      this.allSubscriptions.forEach((sub) => {
-        console.log(sub);
-        sub.unsubscribe();
-      });
-    }, 0);
+    this.sub1?.unsubscribe();
+    this.sub2?.unsubscribe();
+    this.sub3?.unsubscribe();
+
+    console.log(this.sub1);
   }
 
-  setText(value: string) {
+  setTextIfNotSame(value: string) {
     if (this.countAsText.getValue() === value) {
       return;
     }
@@ -127,15 +116,15 @@ export class TheChildComponent {
   }
 
   incrementNumber() {
-    let newValue = this.countAsNumber.getValue() + 1;
+    let newValue = this.countAsNr.getValue() + 1;
     if (newValue > 9) {
       newValue = 0;
     }
-    this.setText(nrToStr(newValue));
+    this.setTextIfNotSame(nrToStr(newValue));
   }
 
   handleTextChange(value: string) {
-    this.setText(value);
+    this.setTextIfNotSame(value);
   }
 }
 
@@ -145,35 +134,36 @@ export class TheChildComponent {
   imports: [CommonModule, TheChildComponent],
   template: `
     <h1>Example</h1>
-    <p>outerNumber: {{ outerNumber | async }}</p>
-    <button (click)="incrementOutterNumber()">increment outer</button>
+    <p>outerNumber: {{ outerNr | async }}</p>
+    <button (click)="incrementOutterNumber()">increment outer</button
+    ><br /><br />
     <button (click)="toggleChild()">toggle child</button>
     @if(showChild) {
     <child-component
       (numberChange)="handleChildNumberChange($event)"
-      [externalNumber]="outerNumber | async"
+      [externalNr]="outerNr | async"
     ></child-component>
     }
   `,
 })
 export class ExampleComponent {
-  outerNumber = new BehaviorSubject<number>(7);
+  outerNr = new BehaviorSubject<number>(7);
   showChild = true;
 
   handleChildNumberChange(value: any) {
     console.log('handleChildNumberChange', value);
-    if (this.outerNumber.getValue() === value) {
+    if (this.outerNr.getValue() === value) {
       return;
     }
-    this.outerNumber.next(value);
+    this.outerNr.next(value);
   }
 
   incrementOutterNumber() {
-    let newValue = this.outerNumber.getValue() + 1;
+    let newValue = this.outerNr.getValue() + 1;
     if (newValue > 9) {
       newValue = 0;
     }
-    this.outerNumber.next(newValue);
+    this.outerNr.next(newValue);
   }
 
   toggleChild() {
@@ -185,7 +175,9 @@ export class ExampleComponent {
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, ExampleComponent],
-  template: `<example-component></example-component>`,
+  template: `<div style="padding: 30px;">
+    <example-component></example-component>
+  </div>`,
 })
 export class AppComponent {}
 
